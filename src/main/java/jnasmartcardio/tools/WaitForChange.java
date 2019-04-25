@@ -13,7 +13,7 @@ import jnasmartcardio.Smartcardio;
 
 /**
  * Simple utility to demonstrate {@link CardTerminals#waitForChange()} and
- * {@link CardTerminals#list(State))}.
+ * {@link CardTerminals#list(State)}.
  */
 public class WaitForChange {
 	private static List<String> terminalNames(List<CardTerminal> terminals) {
