@@ -27,59 +27,79 @@
 			<version>4.0.0</version>
 		</dependency>
 	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 	<profiles>
 		<profile>
-			<!--
-				To compile release version, you need to run mvn compile -Drelease
-				Also you need to put the location of sun 1.6 JDK in ~/.m2/toolchains.xml
-				as described here:
-				https://maven.apache.org/guides/mini/guide-using-toolchains.html
-			-->
 			<id>release</id>
-			<activation>
-				<property>
-					<name>release</name>
-				</property>
-			</activation>
 			<build>
 				<plugins>
 					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.8</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>ossrh-martinpaljak</serverId>
+							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+						</configuration>
+					</plugin>
+					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-toolchains-plugin</artifactId>
-						<version>1.1</version>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>3.0.1</version>
 						<executions>
 							<execution>
+								<id>attach-sources</id>
 								<goals>
-									<goal>toolchain</goal>
+									<goal>jar-no-fork</goal>
 								</goals>
 							</execution>
 						</executions>
-						<configuration>
-							<toolchains>
-								<jdk>
-									<version>1.6</version>
-									<vendor>sun</vendor>
-								</jdk>
-							</toolchains>
-						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
 					</plugin>
 				</plugins>
 			</build>
 		</profile>
 	</profiles>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 	<distributionManagement>
 		<snapshotRepository>
 			<id>sonatype-nexus-snapshots</id>
