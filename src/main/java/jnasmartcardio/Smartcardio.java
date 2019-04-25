@@ -796,7 +796,8 @@ public class Smartcardio extends Provider {
 			if (response == null)
 				response = ByteBuffer.allocate(8192);
 
-			// TODO: implement compatibility with SUN properties
+			boolean transparent = System.getProperty("jnasmartcardio.transparent", "false").equals("true");
+
 			// Don't loop forever.
 			for (int i=0; i<8; i++) {
 				int posBeforeTransmit = response.position();
@@ -806,11 +807,11 @@ public class Smartcardio extends Provider {
 				response.position(response.position() - 2);
 				byte sw1 = response.get();
 				byte sw2 = response.get();
-				if (0x6c == sw1) {
+				if (0x6c == sw1 && !transparent) {
 					command[command.length - 1] = sw2;
 					response.position(posBeforeTransmit);
 					commandBuffer.rewind();
-				} else if (0x61 == sw1) {
+				} else if (0x61 == sw1 && !transparent) {
 					// send Get Response command.
 					// Don't touch CLA as per 7816-4
 					command[1] = (byte) 0xc0;
