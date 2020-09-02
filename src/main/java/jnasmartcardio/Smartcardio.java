@@ -38,7 +38,8 @@ public class Smartcardio extends Provider {
 	static final int MAX_ATR_SIZE = 33;
 
 	public static final String PROVIDER_NAME = "JNA2PCSC";
-	
+
+	@SuppressWarnings("deprecation")
 	public Smartcardio() {
 		super(PROVIDER_NAME, 0.2d, "JNA-to-PCSC Provider");
 		put("TerminalFactory.PC/SC", JnaTerminalFactorySpi.class.getName());
@@ -105,7 +106,7 @@ public class Smartcardio extends Provider {
 		 * in. Unfortunately, this is now almost useless, because the smartcard
 		 * service exits and gives errors when there are no readers.
 		 */
-		private final boolean usePnp = true;
+		private static final boolean usePnp = true;
 		private boolean isClosed;
 		public JnaCardTerminals(Winscard.WinscardLibInfo libInfo, Winscard.SCardContext scardContext) {
 			this.libInfo = libInfo;
@@ -378,6 +379,7 @@ public class Smartcardio extends Provider {
 			}
 			check("SCardReleaseContext", libInfo.lib.SCardReleaseContext(scardContext));
 		}
+		@SuppressWarnings("deprecation")
 		@Override public void finalize() throws JnaPCSCException {
 			close();
 		}
@@ -542,7 +544,7 @@ public class Smartcardio extends Provider {
 			this.scardHandle = scardHandle;
 			this.atr = atr;
 			this.protocol = protocol;
-			getProtocol();  // make sure it is valid.
+			//getProtocol();  // make sure it is valid.
 		}
 
 		@Override public void beginExclusive() throws CardException {

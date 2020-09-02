@@ -80,7 +80,7 @@ class Winscard {
 	 */
 	public static class Handle extends IntegerType {
 		private static final long serialVersionUID = 1L;
-		public static final int SIZE = Platform.isWindows() ? Pointer.SIZE : Dword.SIZE;
+		public static final int SIZE = Platform.isWindows() ? Native.POINTER_SIZE : Dword.SIZE;
 		public Handle(long value) {
 			super(SIZE, value);
 		}
@@ -288,7 +288,7 @@ class Winscard {
 		} else if (Platform.isMac()) {
 			options.put(Library.OPTION_FUNCTION_MAPPER, new MacFunctionMapper());
 		}
-		WinscardLibrary lib = (WinscardLibrary) Native.loadLibrary(libraryName, WinscardLibrary.class, options);
+		WinscardLibrary lib = (WinscardLibrary) Native.load(libraryName, WinscardLibrary.class, options);
 		NativeLibrary nativeLibrary = NativeLibrary.getInstance(libraryName);
 		// SCARD_PCI_* is #defined to the following symbols (both pcsclite and winscard)
 		ScardIoRequest SCARD_PCI_T0 = new ScardIoRequest(nativeLibrary.getGlobalVariableAddress("g_rgSCardT0Pci"));

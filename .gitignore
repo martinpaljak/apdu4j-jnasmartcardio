@@ -1,4 +1,9 @@
-target/
-.settings
+**/target
+*.iml
+*~
+.idea
 .project
-.classpath
+.settings
+/.mvn/wrapper/maven-wrapper.jar
+pom.xml.versionsBackup
+target/
