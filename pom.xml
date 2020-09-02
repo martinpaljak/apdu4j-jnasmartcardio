@@ -8,12 +8,11 @@
     </parent>
 
     <artifactId>apdu4j-jnasmartcardio</artifactId>
-    <version>0.2.7+200831</version>
+    <version>0.2.7+200902</version>
     <packaging>jar</packaging>
 
     <name>jnasmartcardio</name>
-    <description>A re-implementation of the javax.smartcardio API. It allows you to communicate to a smart card (at the
-        APDU level) from within Java.
+    <description>A re-implementation of the javax.smartcardio API. It allows you to communicate to a smart card (at the APDU level) from within Java.
     </description>
     <url>https://github.com/jnasmartcardio/jnasmartcardio</url>
 
