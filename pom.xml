@@ -4,11 +4,11 @@
     <parent>
         <groupId>com.github.martinpaljak</groupId>
         <artifactId>metacard</artifactId>
-        <version>20.09.02</version>
+        <version>21.01.19</version>
     </parent>
 
     <artifactId>apdu4j-jnasmartcardio</artifactId>
-    <version>0.2.7+200902</version>
+    <version>0.2.7+210312</version>
     <packaging>jar</packaging>
 
     <name>jnasmartcardio</name>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
