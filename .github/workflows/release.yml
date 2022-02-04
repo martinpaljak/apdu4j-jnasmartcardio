@@ -11,13 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
       - name: Setup Java
-        uses: actions/setup-java@master
+        uses: actions/setup-java@v2
         with:
           java-version: 11
+          distribution: temurin
       - name: Set SSH key
-        uses: webfactory/ssh-agent@v0.5.0
+        uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
       - name: Add known host key
