@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.0.2
       - name: Setup Java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3.4.1
         with:
           java-version: 11
           distribution: temurin
@@ -24,7 +24,7 @@ jobs:
       - name: Add known host key
         run: ssh-keyscan javacard.pro >> ~/.ssh/known_hosts
       - name: Package
-        run: ./mvnw -B verify
+        run: ./mvnw -B -T1C verify
       - name: Release
         id: create_release
         uses: actions/create-release@v1
@@ -36,4 +36,4 @@ jobs:
           draft: false
           prerelease: true # Manually promoted to latest release
       - name: Deploy package
-        run: ./mvnw -B deploy
+        run: ./mvnw -B -T1C deploy

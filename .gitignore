@@ -4,6 +4,7 @@
 .idea
 .project
 .settings
+/.idea
 /.mvn/wrapper/maven-wrapper.jar
 pom.xml.versionsBackup
 target/
