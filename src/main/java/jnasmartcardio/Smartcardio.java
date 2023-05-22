@@ -55,7 +55,7 @@ public class Smartcardio extends Provider {
 			this(Winscard.openLib());
 		}
 		
-		public JnaTerminalFactorySpi(Winscard.WinscardLibInfo libInfo) {
+		JnaTerminalFactorySpi(Winscard.WinscardLibInfo libInfo) {
 			this.libInfo = libInfo;
 		}
 		/**
@@ -108,7 +108,7 @@ public class Smartcardio extends Provider {
 		 */
 		private static final boolean usePnp = true;
 		private boolean isClosed;
-		public JnaCardTerminals(Winscard.WinscardLibInfo libInfo, Winscard.SCardContext scardContext) {
+		JnaCardTerminals(Winscard.WinscardLibInfo libInfo, Winscard.SCardContext scardContext) {
 			this.libInfo = libInfo;
 			this.scardContext = scardContext;
 			this.knownReaders = createScardReaderStates(Collections.<String>emptyList(), usePnp, new SCardReaderState[0]);
@@ -410,7 +410,7 @@ public class Smartcardio extends Provider {
 		public static final int SCARD_NEGOTIABLE = 0x20;
 		public static final int SCARD_SPECIFIC = 0x40;
 
-		public JnaCardTerminal(Winscard.WinscardLibInfo libInfo, JnaCardTerminals cardTerminals, String name) {
+		JnaCardTerminal(Winscard.WinscardLibInfo libInfo, JnaCardTerminals cardTerminals, String name) {
 			this.libInfo = libInfo;
 			this.cardTerminals = cardTerminals;
 			this.name = name;
@@ -538,7 +538,7 @@ public class Smartcardio extends Provider {
 		 * {@link JnaCardTerminal#SCARD_PROTOCOL_T1}
 		 */
 		private final int protocol;
-		public JnaCard(Winscard.WinscardLibInfo libInfo, JnaCardTerminal cardTerminal, Winscard.SCardHandle scardHandle, ATR atr, int protocol) {
+		JnaCard(Winscard.WinscardLibInfo libInfo, JnaCardTerminal cardTerminal, Winscard.SCardHandle scardHandle, ATR atr, int protocol) {
 			this.libInfo = libInfo;
 			this.cardTerminal = cardTerminal;
 			this.scardHandle = scardHandle;
