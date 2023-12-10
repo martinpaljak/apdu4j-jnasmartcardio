@@ -31,7 +31,7 @@ import com.sun.jna.Platform;
 import com.sun.jna.Structure;
 
 
-public class Smartcardio extends Provider {
+public final class Smartcardio extends Provider {
 	
 	private static final long serialVersionUID = 1L;
 	
