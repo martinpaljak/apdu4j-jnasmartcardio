@@ -39,9 +39,8 @@ public class Smartcardio extends Provider {
 
 	public static final String PROVIDER_NAME = "JNA2PCSC";
 
-	@SuppressWarnings("deprecation")
 	public Smartcardio() {
-		super(PROVIDER_NAME, 0.2d, "JNA-to-PCSC Provider");
+		super(PROVIDER_NAME, "0.2", "JNA-to-PCSC Provider");
 		put("TerminalFactory.PC/SC", JnaTerminalFactorySpi.class.getName());
 	}
 	
@@ -379,10 +378,6 @@ public class Smartcardio extends Provider {
 			}
 			check("SCardReleaseContext", libInfo.lib.SCardReleaseContext(scardContext));
 		}
-		@SuppressWarnings("deprecation")
-		@Override public void finalize() throws JnaPCSCException {
-			close();
-		}
 	}
 
 	public static class JnaCardTerminal extends CardTerminal {
@@ -512,7 +507,7 @@ public class Smartcardio extends Provider {
 				if (remainingTimeout != WinscardConstants.INFINITE) {
 					if (remainingTimeout < endTime - startTime)
 						return false;
-					remainingTimeout -= endTime - startTime;
+					remainingTimeout -= (int) (endTime - startTime); // Should never run out...
 				}
 			}
 			return true;
