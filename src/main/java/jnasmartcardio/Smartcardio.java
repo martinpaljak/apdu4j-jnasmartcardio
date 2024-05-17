@@ -471,22 +471,40 @@ public final class Smartcardio extends Provider {
             DwordByReference pdwActiveProtocol = new DwordByReference();
 
             long err = libInfo.lib.SCardConnect(cardTerminals.scardContext, name, new Dword(dwShareMode), new Dword(dwPreferredProtocols), phCard, pdwActiveProtocol).longValue();
+
+            Winscard.SCardHandle scardHandle = phCard.getValue();
+            DwordByReference readerLength = new DwordByReference();
+            DwordByReference currentState = new DwordByReference();
+            DwordByReference currentProtocol = new DwordByReference();
+            ByteBuffer atrBuf = ByteBuffer.allocate(Smartcardio.MAX_ATR_SIZE);
+            DwordByReference atrLength = new DwordByReference(new Dword(Smartcardio.MAX_ATR_SIZE));
+
             switch ((int) err) {
                 case SCARD_S_SUCCESS:
-                    Winscard.SCardHandle scardHandle = phCard.getValue();
-                    DwordByReference readerLength = new DwordByReference();
-                    DwordByReference currentState = new DwordByReference();
-                    DwordByReference currentProtocol = new DwordByReference();
-                    ByteBuffer atrBuf = ByteBuffer.allocate(Smartcardio.MAX_ATR_SIZE);
-                    DwordByReference atrLength = new DwordByReference(new Dword(Smartcardio.MAX_ATR_SIZE));
+                    // Protocol override hack
+                    if (flag("APDU4J_FORCE_PROTOCOL") != null) {
+                        String forceProtocol = flag("APDU4J_FORCE_PROTOCOL");
+                        final int force;
+                        if ("T=0".equals(forceProtocol)) {
+                            force = SCARD_PROTOCOL_T0;
+                        } else if ("T=1".equals(forceProtocol)) {
+                            force = SCARD_PROTOCOL_T1;
+                        } else
+                            throw new IllegalArgumentException("$APDU4J_FORCE_PROTOCOL must be T=0 or T=1. Got " + System.getenv("APDU4J_FORCE_PROTOCOL"));
+
+                        if (pdwActiveProtocol.getValue().intValue() != force) {
+                            // Reconnect, forcing protocol
+                            long err2 = libInfo.lib.SCardReconnect(scardHandle, new Dword(dwShareMode), new Dword(dwPreferredProtocols), new Dword(JnaCard.SCARD_UNPOWER_CARD), pdwActiveProtocol).longValue();
+                            check("SCardReconnect", err2);
+                        }
+                    }
                     check("SCardStatus", libInfo.lib.SCardStatus(scardHandle, null, readerLength, currentState, currentProtocol, atrBuf, atrLength));
                     int atrLengthInt = atrLength.getValue().intValue();
                     atrBuf.limit(atrLengthInt);
                     byte[] atrBytes = new byte[atrBuf.remaining()];
                     atrBuf.get(atrBytes);
                     ATR atr = new ATR(atrBytes);
-                    int currentProtocolInt = currentProtocol.getValue().intValue();
-                    return new JnaCard(libInfo, this, scardHandle, atr, currentProtocolInt);
+                    return new JnaCard(libInfo, this, scardHandle, atr, currentProtocol.getValue().intValue());
                 case WinscardConstants.SCARD_W_REMOVED_CARD:
                     throw new JnaCardNotPresentException(err, "Card not present.");
                 default:
@@ -853,7 +871,7 @@ public final class Smartcardio extends Provider {
             if (response == null)
                 response = ByteBuffer.allocate(8192);
 
-            boolean transparent = System.getProperty("jnasmartcardio.transparent", "false").equals("true");
+            boolean transparent = flag("jnasmartcardio.transparent") != null || flag("APDU4J_TRANSPARENT") != null;
 
             // Don't loop forever.
             for (int i = 0; i < 8; i++) {
@@ -1056,4 +1074,15 @@ public final class Smartcardio extends Provider {
         String codeDescription = WinscardConstants.ERROR_TO_DESCRIPTION.get(icode);
         throw new JnaPCSCException(code, String.format("%s got response 0x%x (%s: %s)", message, icode, codeName, codeDescription));
     }
+
+    static String flag(String s) {
+        String propname = s.replace("_", ".").toLowerCase();
+        String envname = s.replace(".", "_").toUpperCase();
+
+        if (System.getProperty(propname) != null)
+            return System.getProperty(propname);
+
+        return System.getenv(envname);
+    }
+
 }
