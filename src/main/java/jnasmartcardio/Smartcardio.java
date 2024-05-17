@@ -6,6 +6,7 @@ package jnasmartcardio;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.Provider;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -494,8 +495,11 @@ public final class Smartcardio extends Provider {
 
                         if (pdwActiveProtocol.getValue().intValue() != force) {
                             // Reconnect, forcing protocol
-                            long err2 = libInfo.lib.SCardReconnect(scardHandle, new Dword(dwShareMode), new Dword(dwPreferredProtocols), new Dword(JnaCard.SCARD_UNPOWER_CARD), pdwActiveProtocol).longValue();
+                            long err2 = libInfo.lib.SCardReconnect(scardHandle, new Dword(dwShareMode), new Dword(force), new Dword(JnaCard.SCARD_UNPOWER_CARD), pdwActiveProtocol).longValue();
                             check("SCardReconnect", err2);
+
+                            if (pdwActiveProtocol.getValue().intValue() != force)
+                                throw new JnaPCSCException("Could not force protocol to " + force + ". Got " + pdwActiveProtocol.getValue().intValue() + " instead.");
                         }
                     }
                     check("SCardStatus", libInfo.lib.SCardStatus(scardHandle, null, readerLength, currentState, currentProtocol, atrBuf, atrLength));
@@ -1059,7 +1063,7 @@ public final class Smartcardio extends Provider {
     }
 
     private static List<String> pcsc_multi2jstring(byte[] multiString) {
-        return pcsc_multi2jstring(multiString, Charset.forName("UTF-8"));
+        return pcsc_multi2jstring(multiString, StandardCharsets.UTF_8);
     }
 
     private static void check(String message, Dword code) throws JnaPCSCException {
