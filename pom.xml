@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>apdu4j-jnasmartcardio</artifactId>
-    <version>0.2.7+231210</version>
+    <version>0.2.7+240517</version>
     <packaging>jar</packaging>
 
     <name>jnasmartcardio</name>
@@ -20,7 +20,7 @@
         <repository>
             <id>javacard-pro</id>
             <name>javacard.pro</name>
-            <url>https://javacard.pro/maven/</url>
+            <url>https://mvn.javacard.pro/maven/</url>
         </repository>
     </repositories>
 
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
-            <version>5.10.1</version>
+            <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
