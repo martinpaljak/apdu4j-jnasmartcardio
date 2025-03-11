@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>apdu4j-jnasmartcardio</artifactId>
-    <version>25.03.11</version>
+    <version>25.03.12-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>jnasmartcardio</name>
