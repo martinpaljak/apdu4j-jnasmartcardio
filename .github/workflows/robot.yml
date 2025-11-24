@@ -8,7 +8,7 @@ on:
   pull_request:
     branches:
       - master
-name: Robot builder
+name: Build robot
 jobs:
   build:
     runs-on: ubuntu-24.04
