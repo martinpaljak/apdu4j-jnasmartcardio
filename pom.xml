@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.martinpaljak</groupId>
     <artifactId>apdu4j-jnasmartcardio</artifactId>
-    <version>25.11.24</version>
+    <version>25.11.25-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>jnasmartcardio</name>
@@ -16,7 +16,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- GH Actions fails sometimes on first try -->
         <maven.wagon.http.retryHandler.count>2</maven.wagon.http.retryHandler.count>
-        <project.build.outputTimestamp>2025-11-24T11:53:07Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2025-11-24T11:53:13Z</project.build.outputTimestamp>
     </properties>
     <!-- Default is publishing to private Maven repo on mvn.javacard.pro -->
     <distributionManagement>
