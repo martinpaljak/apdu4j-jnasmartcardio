@@ -207,7 +207,7 @@ public final class Smartcardio extends Provider {
             byte[] mszReaders = null;
             long err;
             ByteBuffer mszReaderGroups = ByteBuffer.allocate("SCard$AllReaders".length() + 2);
-            mszReaderGroups.put("SCard$AllReaders".getBytes(Charset.forName("ascii")));
+            mszReaderGroups.put("SCard$AllReaders".getBytes(StandardCharsets.US_ASCII));
             while (true) {
                 err = libInfo.lib.SCardListReaders(scardContext, mszReaderGroups, null, pcchReaders).longValue();
                 if (err != 0)
