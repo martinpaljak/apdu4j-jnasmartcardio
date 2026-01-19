@@ -1,3 +1,44 @@
+apdu4j-jnasmartcardio-26.01.12 (2026-01-12)
+===
+* Update GitHub build workflow and Maven dependencies
+
+apdu4j-jnasmartcardio-25.11.24 (2025-11-24)
+===
+* Detach from metacard parent POM for standalone builds
+* Target Java 11+ runtime with JDK 17+ required for building
+
+apdu4j-jnasmartcardio-25.03.11 (2025-03-11)
+===
+* Update dependencies
+
+apdu4j-jnasmartcardio-24.09.26 (2024-09-26)
+===
+* Add experimental reconnect to force protocol (similar to OpenSC behavior)
+* Switch to calendar-based versioning (YY.MM.DD)
+* Releases now available at mvn.javacard.pro
+
+apdu4j-jnasmartcardio-0.2.7+231210 (2023-12-10)
+===
+* Make Smartcardio class final to prevent 'this' escape before subclass initialization
+
+apdu4j-jnasmartcardio-0.2.7+230522 (2023-05-22)
+===
+* Make internal constructors non-public to eliminate module warnings
+* Update module-info.java exports
+
+apdu4j-jnasmartcardio-0.2.7+210312 (2021-03-12)
+===
+* Update JNA to 5.7.0 for Apple Silicon (M1) support
+
+apdu4j-jnasmartcardio-0.2.7+200902 (2020-09-02)
+===
+* **Breaking**: Minimum Java version is now Java 11 (was Java 6)
+* **Breaking**: Maven coordinates changed from `io.github.jnasmartcardio:jnasmartcardio` to `com.github.martinpaljak:apdu4j-jnasmartcardio`
+* Add Java Platform Module System (JPMS) support with `jnasmartcardio` module
+* Add "transparent" mode property to disable automatic GET RESPONSE handling in transmit()
+* Add Maven Wrapper for reproducible builds
+* Add GitHub Actions CI workflow
+
 jnasmartcardio-0.2.7 (2015-12-05)
 ===
 * [#31](https://github.com/jnasmartcardio/jnasmartcardio/pull/31) Depend on JNA 4.0.0 explicitly since the dependency range [3.2.5, 4.0.0] stopped working. The user can override JNA to anything between 3.2.5 and the latest 4.3.0.
@@ -37,10 +78,10 @@ jnasmartcardio-0.2.0 (2013-11-12)
 
 * Add Linux support.
     * Fix dynamic library name on Linux (libpcsclite.so.1).
-    * Fix CardTerminals.waitForChange(long) on Linux: don’t pack SCardReaderState, and query the readers before waiting for status change.
+    * Fix CardTerminals.waitForChange(long) on Linux: don't pack SCardReaderState, and query the readers before waiting for status change.
 * Add Windows support.
     * Fix Windows symbol names e.g. SCardListReadersA.
-    * Fix SCardContext and SCardHandle on 64-bit Java on Windows (and possibly 64-bit Java on OS X although I haven’t seen any crashes)
+    * Fix SCardContext and SCardHandle on 64-bit Java on Windows (and possibly 64-bit Java on OS X although I haven't seen any crashes)
 * Fix exceptions being thrown by CardTerminal.isCardPresent() by switching to a simpler implementation.
 * Implement Card.openLogicalChannel().
 * [#7](https://github.com/jnasmartcardio/jnasmartcardio/issues/7) Expand JNA requirement from 4.0.0 to [3.2.5, 4.0.0]
