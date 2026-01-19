@@ -10,7 +10,7 @@
     <description>A re-implementation of the javax.smartcardio API. It allows you to communicate to a smart card (at the
         APDU level) from within Java.
     </description>
-    <url>https://github.com/jnasmartcardio/jnasmartcardio</url>
+    <url>https://github.com/martinpaljak/apdu4j-jnasmartcardio</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -93,9 +93,9 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:git://jnasmartcardio/jnasmartcardio.git</connection>
-        <developerConnection>scm:git:git@github.com:jnasmartcardio/jnasmartcardio.git</developerConnection>
-        <url>https://github.com/jnasmartcardio/jnasmartcardio</url>
+        <connection>scm:git:git://github.com/martinpaljak/apdu4j-jnasmartcardio.git</connection>
+        <developerConnection>scm:git:git@github.com:martinpaljak/apdu4j-jnasmartcardio.git</developerConnection>
+        <url>https://github.com/martinpaljak/apdu4j-jnasmartcardio</url>
         <tag>HEAD</tag>
     </scm>
     <developers>
