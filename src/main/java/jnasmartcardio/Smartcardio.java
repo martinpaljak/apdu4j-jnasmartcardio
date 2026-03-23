@@ -612,8 +612,11 @@ public final class Smartcardio extends Provider {
 
         @Override
         public void disconnect(boolean reset) throws CardException {
-            int dwDisposition = reset ? SCARD_RESET_CARD : SCARD_LEAVE_CARD;
-            check("SCardDisconnect", libInfo.lib.SCardDisconnect(scardHandle, new Dword(dwDisposition)));
+            disconnect(reset ? SCARD_RESET_CARD : SCARD_LEAVE_CARD);
+        }
+
+        public void disconnect(int disposition) throws CardException {
+            check("SCardDisconnect", libInfo.lib.SCardDisconnect(scardHandle, new Dword(disposition)));
         }
 
         @Override
