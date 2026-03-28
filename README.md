@@ -89,7 +89,7 @@ As well as waking up when a card is inserted/removed, waitForChange will also wa
 
 ### JnaCardTerminal
 
-[connect(String protocol)](https://docs.oracle.com/en/java/javase/17/docs/api/java.smartcardio/javax/smartcardio/CardTerminal.html#connect%28java.lang.String%29) supports exactly the same connection modes as the JRE does: T=0, T=1, T=*, and T=DIRECT (T=CL is mentioned in the smartcardio documentation but is not accepted). Unlike the JRE, it does not return the same connection when you connect twice.
+[connect(String protocol)](https://docs.oracle.com/en/java/javase/17/docs/api/java.smartcardio/javax/smartcardio/CardTerminal.html#connect%28java.lang.String%29) supports exactly the same connection modes as the JRE does: T=0, T=1, *, and DIRECT (T=CL is mentioned in the smartcardio documentation but is not accepted). Unlike the JRE, it does not return the same connection when you connect twice.
 
 If the protocol is prepended with `EXCLUSIVE;` the usual `SCARD_SHARE_SHARED` mode shall be replaced with `SCARD_SHARE_EXCLUSIVE`.
 This allows to use a safely locked reader on Windows 8+ where otherwise a transaction initiated with `SCardBeginTransaction` (`beginExclusive()`) would be closed
