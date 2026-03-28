@@ -1,4 +1,5 @@
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
@@ -9,6 +10,9 @@ on:
     branches:
       - next
 name: Build robot
+concurrency:
+  group: robot
+  cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-24.04
