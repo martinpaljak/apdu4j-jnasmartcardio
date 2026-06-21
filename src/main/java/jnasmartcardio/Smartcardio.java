@@ -871,6 +871,15 @@ public final class Smartcardio extends Provider {
             if (card.protocol == JnaCardTerminal.SCARD_PROTOCOL_T0 && isExtendedApdu(command))
                 throw new CardException("Extended APDU requires T=1");
 
+            // A T=0 TPDU carries one length field, so case-4 cannot be sent as is: drop the Le
+            // and send it as case-3 (ISO/IEC 7816-3).
+            if (card.protocol == JnaCardTerminal.SCARD_PROTOCOL_T0 && command.length >= 7) {
+                int lc = command[4] & 0xff;
+                if (lc != 0 && command.length == lc + 6) { // case-4S: header + Lc + data + Le
+                    command = Arrays.copyOf(command, command.length - 1);
+                }
+            }
+
             command[0] = getClassByte(command[0], getChannelNumber());
             ByteBuffer commandBuffer = ByteBuffer.wrap(command);
 
