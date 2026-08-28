@@ -1,3 +1,10 @@
+apdu4j-jnasmartcardio-SNAPSHOT
+===
+* Maven coordinates changed to `pro.javacard:apdu4j-jnasmartcardio`
+* Published to https://mvn.javacard.pro/public/
+* T=0: strip Le from case-4 short APDU
+* Update Maven dependencies and plugins
+
 apdu4j-jnasmartcardio-26.01.12 (2026-01-12)
 ===
 * Update GitHub build workflow and Maven dependencies

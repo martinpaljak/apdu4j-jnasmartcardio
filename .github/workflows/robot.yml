@@ -22,29 +22,32 @@ jobs:
     name: Java ${{ matrix.java }}
     steps:
       - name: Checkout with submodules
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # To make git describe give the intended output
           fetch-tags: true
       - name: Setup java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
           cache: maven
       - name: Build
         run: ./mvnw -B -Pcheck verify
+      - name: Set up publishing
+        if: github.event_name != 'pull_request' && matrix.java == '17'
+        uses: martinpaljak/maven-ssh-deploy@v2
+        with:
+          host: mvn.javacard.pro
+          key: ${{ secrets.SSH_KEY }}
+          fingerprint: SHA256:auiF3nHWvDmvq2stDl+QEECCqMcDp+FY1/bDRnvxpRw
       - name: Deploy package or snapshot
         if: github.event_name != 'pull_request' && matrix.java == '17'
-        uses: martinpaljak/maven-ssh-deploy@v1
-        with:
-          key: ${{ secrets.SSH_KEY }}
-          user: mvn@mvn.javacard.pro
-          host_fp: SHA256:auiF3nHWvDmvq2stDl+QEECCqMcDp+FY1/bDRnvxpRw
+        run: TZ=UTC ./mvnw -B deploy -DskipTests
       - name: Release
         if: startsWith(github.ref, 'refs/tags/v') && matrix.java == '17'
         id: create_release
-        uses: softprops/action-gh-release@v3.0.1
+        uses: softprops/action-gh-release@v3.0.2
         with:
           body: "Release ${{ github.ref_name }}"
           prerelease: true # manually promoted

@@ -29,16 +29,20 @@ Releases are published to [mvn.javacard.pro](https://mvn.javacard.pro). Add the 
 <repositories>
     <repository>
         <id>javacard-pro</id>
-        <url>https://mvn.javacard.pro/maven/</url>
+        <url>https://mvn.javacard.pro/public/</url>
+    </repository>
+    <repository>
+        <id>javacard-pro-snapshots</id>
+        <url>https://mvn.javacard.pro/public-snapshots/</url>
     </repository>
 </repositories>
 ```
 
 ```xml
 <dependency>
-    <groupId>com.github.martinpaljak</groupId>
+    <groupId>pro.javacard</groupId>
     <artifactId>apdu4j-jnasmartcardio</artifactId>
-    <version>26.01.12</version>
+    <version>26.08.28-SNAPSHOT</version>
 </dependency>
 ```
 
