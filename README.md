@@ -1,5 +1,8 @@
 jnasmartcardio
 ===
+
+[![Build status](https://github.com/martinpaljak/apdu4j-jnasmartcardio/actions/workflows/robot.yml/badge.svg?branch=next)](https://github.com/martinpaljak/apdu4j-jnasmartcardio/actions)
+
 (Previously known as jna2pcsc.) A re-implementation of the [`javax.smartcardio` API](https://docs.oracle.com/en/java/javase/17/docs/api/java.smartcardio/). It allows you to communicate to a smart card (at the APDU level) from within Java.
 
 This library allows you to transmit and receive application protocol data units (APDUs) specified by ISO/IEC 7816-3 to a smart card.
