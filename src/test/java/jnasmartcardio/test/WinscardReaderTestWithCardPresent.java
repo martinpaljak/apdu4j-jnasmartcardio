@@ -2,7 +2,7 @@
  * To the extent possible under law, contributors have waived all
  * copyright and related or neighboring rights to work.
  */
-package jnasmartcardio;
+package jnasmartcardio.test;
 import static org.junit.Assert.*;
 
 
