@@ -3,7 +3,23 @@ apdu4j-jnasmartcardio-SNAPSHOT
 * Maven coordinates changed to `pro.javacard:apdu4j-jnasmartcardio`
 * Published to https://mvn.javacard.pro/public/
 * T=0: strip Le from case-4 short APDU
+* T=0: fix 6Cxx corrupting the last data byte of a case-4 command
+* T=0: don't truncate responses that need more than 8 GET RESPONSE rounds
+* Fix `ArrayIndexOutOfBoundsException` when a case 1 (4 byte) APDU is answered with 61xx
+* Fix 6Cxx retry re-sending the previous GET RESPONSE header
+* 6Cxx is no longer retried for commands with no Le field (case 3, extended)
+* `SCARD_E_NO_SMARTCARD` on connect now throws `CardNotPresentException`
+* Card responses shorter than a status word now throw `CardException`
+* Add missing PC/SC error codes
+* Unknown PC/SC error codes no longer render as `(null: null)`
+* Register as a `java.security.Provider` service for the module path
+* Publish a sources jar
 * Update Maven dependencies and plugins
+
+apdu4j-jnasmartcardio-26.03.28 (2026-03-28)
+===
+* Add `JnaCard.disconnect(int disposition)` to pass any SCardDisconnect disposition
+* Update dependencies and build config
 
 apdu4j-jnasmartcardio-26.01.12 (2026-01-12)
 ===

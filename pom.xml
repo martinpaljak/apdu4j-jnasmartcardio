@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>pro.javacard</groupId>
     <artifactId>apdu4j-jnasmartcardio</artifactId>
-    <version>26.08.28-SNAPSHOT</version>
+    <version>26.09.08-SNAPSHOT</version>
 
     <name>jnasmartcardio</name>
     <description>A re-implementation of the javax.smartcardio API with JNA.
@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <project.build.outputTimestamp>2026-08-28T10:59:57Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-09-08T06:32:00Z</project.build.outputTimestamp>
     </properties>
     <dependencies>
         <dependency>
@@ -27,11 +27,10 @@
             <version>5.19.1</version>
         </dependency>
     </dependencies>
-    <!-- TODO: remove once m2ssh is released -->
     <pluginRepositories>
         <pluginRepository>
-            <id>javacard-pro-snapshots</id>
-            <url>https://mvn.javacard.pro/public-snapshots/</url>
+            <id>javacard-pro</id>
+            <url>https://mvn.javacard.pro/public/</url>
         </pluginRepository>
     </pluginRepositories>
     <distributionManagement>
@@ -46,8 +45,7 @@
             <extension>
                 <groupId>pro.javacard.maven</groupId>
                 <artifactId>m2ssh</artifactId>
-                <!-- TODO: move to released once available -->
-                <version>26.08.28-SNAPSHOT</version>
+                <version>26.09.07</version>
             </extension>
         </extensions>
         <pluginManagement>
@@ -87,6 +85,55 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
                     <version>3.22.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.openrewrite.maven</groupId>
+                    <artifactId>rewrite-maven-plugin</artifactId>
+                    <version>6.46.1</version>
+                    <configuration>
+                        <activeRecipes>
+                            <!-- Control flow / style -->
+                            <recipe>org.openrewrite.staticanalysis.NeedBraces</recipe>
+                            <recipe>org.openrewrite.staticanalysis.EmptyBlock</recipe>
+                            <recipe>org.openrewrite.staticanalysis.FallThrough</recipe>
+                            <recipe>org.openrewrite.staticanalysis.DefaultComesLast</recipe>
+                            <recipe>org.openrewrite.staticanalysis.ModifierOrder</recipe>
+                            <recipe>org.openrewrite.staticanalysis.MultipleVariableDeclarations</recipe>
+                            <!-- Type safety / modernization -->
+                            <recipe>org.openrewrite.staticanalysis.UseDiamondOperator</recipe>
+                            <recipe>org.openrewrite.staticanalysis.RemoveRedundantTypeCast</recipe>
+                            <recipe>org.openrewrite.staticanalysis.UseJavaStyleArrayDeclarations</recipe>
+                            <recipe>org.openrewrite.staticanalysis.MissingOverrideAnnotation</recipe>
+                            <recipe>org.openrewrite.staticanalysis.ReplaceClassIsInstanceWithInstanceof</recipe>
+                            <!-- Dead code / redundancy -->
+                            <recipe>org.openrewrite.staticanalysis.RemoveExtraSemicolons</recipe>
+                            <recipe>org.openrewrite.staticanalysis.UnnecessaryParentheses</recipe>
+                            <recipe>org.openrewrite.staticanalysis.NoToStringOnStringType</recipe>
+                            <recipe>org.openrewrite.staticanalysis.NoValueOfOnStringType</recipe>
+                            <!-- Strings / equality -->
+                            <recipe>org.openrewrite.staticanalysis.EqualsAvoidsNull</recipe>
+                            <recipe>org.openrewrite.staticanalysis.StringLiteralEquality</recipe>
+                            <recipe>org.openrewrite.staticanalysis.UseStringReplace</recipe>
+                            <recipe>org.openrewrite.staticanalysis.UseStandardCharset</recipe>
+                            <!-- Lambda modernization -->
+                            <recipe>org.openrewrite.staticanalysis.LambdaBlockToExpression</recipe>
+                            <!-- Exception / resource / threading -->
+                            <recipe>org.openrewrite.staticanalysis.CatchClauseOnlyRethrows</recipe>
+                            <recipe>org.openrewrite.staticanalysis.CombineSemanticallyEqualCatchBlocks</recipe>
+                            <recipe>org.openrewrite.staticanalysis.UnnecessaryCloseInTryWithResources</recipe>
+                            <recipe>org.openrewrite.staticanalysis.NoFinalizer</recipe>
+                            <recipe>org.openrewrite.staticanalysis.NoDoubleBraceInitialization</recipe>
+                            <recipe>org.openrewrite.staticanalysis.ReplaceThreadRunWithThreadStart</recipe>
+                            <recipe>org.openrewrite.staticanalysis.RenameExceptionInEmptyCatch</recipe>
+                        </activeRecipes>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.openrewrite.recipe</groupId>
+                            <artifactId>rewrite-static-analysis</artifactId>
+                            <version>2.41.1</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -128,6 +175,19 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.4.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -150,6 +210,21 @@
                         </configuration>
                     </plugin>
                     <plugin>
+                        <groupId>org.openrewrite.maven</groupId>
+                        <artifactId>rewrite-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>dryRun</goal>
+                                </goals>
+                                <configuration>
+                                    <failOnDryRunResults>true</failOnDryRunResults>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>com.github.spotbugs</groupId>
                         <artifactId>spotbugs-maven-plugin</artifactId>
                         <version>4.10.4.1</version>
@@ -168,11 +243,31 @@
                 </plugins>
             </build>
         </profile>
+        <!-- OpenRewrite: apply fixes (bound to process-sources) -->
+        <profile>
+            <id>fixup</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.openrewrite.maven</groupId>
+                        <artifactId>rewrite-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>process-sources</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
     <licenses>
         <license>
             <name>CC0</name>
-            <url>http://creativecommons.org/publicdomain/zero/1.0/legalcode</url>
+            <url>https://creativecommons.org/publicdomain/zero/1.0/legalcode</url>
             <distribution>repo</distribution>
             <comments>Public domain, or as close to it as legally possible.</comments>
         </license>

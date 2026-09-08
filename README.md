@@ -1,9 +1,12 @@
 jnasmartcardio
 ===
 
-[![Build status](https://github.com/martinpaljak/apdu4j-jnasmartcardio/actions/workflows/robot.yml/badge.svg?branch=next)](https://github.com/martinpaljak/apdu4j-jnasmartcardio/actions)
+[![Latest release](https://img.shields.io/github/release/martinpaljak/apdu4j-jnasmartcardio.svg)](https://github.com/martinpaljak/apdu4j-jnasmartcardio/releases/latest)
+&nbsp;[![Maven version](https://img.shields.io/maven-metadata/v?label=mvn.javacard.pro&metadataUrl=https%3A%2F%2Fmvn.javacard.pro%2Fpublic-snapshots%2Fpro%2Fjavacard%2Fapdu4j-jnasmartcardio%2Fmaven-metadata.xml)](https://mvn.javacard.pro/)
+&nbsp;[![CC0 licensed](https://img.shields.io/badge/license-CC0-blue.svg)](https://github.com/martinpaljak/apdu4j-jnasmartcardio/blob/next/LICENSE)
+&nbsp;[![Build status](https://github.com/martinpaljak/apdu4j-jnasmartcardio/actions/workflows/robot.yml/badge.svg?branch=next)](https://github.com/martinpaljak/apdu4j-jnasmartcardio/actions)
 
-(Previously known as jna2pcsc.) A re-implementation of the [`javax.smartcardio` API](https://docs.oracle.com/en/java/javase/17/docs/api/java.smartcardio/). It allows you to communicate to a smart card (at the APDU level) from within Java.
+(Previously known as jna2pcsc.) A re-implementation of the [`javax.smartcardio` API](https://docs.oracle.com/en/java/javase/17/docs/api/java.smartcardio/module-summary.html). It allows you to communicate to a smart card (at the APDU level) from within Java.
 
 This library allows you to transmit and receive application protocol data units (APDUs) specified by ISO/IEC 7816-3 to a smart card.
 
@@ -16,10 +19,10 @@ Alternatives
 
 First, if you are using smart cards for authentication and it comes with a PKCS#11 native library (or is supported by opensc-pkcs11), you should probably use the SunPKCS11 KeyStore provider instead of implementing the PKCS#15 client protocol yourself.
 
-Once you have decided on APDU communication, you may wonder why this library exists, given that the JRE already comes with an implementation of `javax.smartcardio`. What’s wrong with it? There are a couple reasons you might consider switching to a JNA solution:
+Once you have decided on APDU communication, you may wonder why this library exists, given that the JRE already comes with an implementation of `javax.smartcardio`. What's wrong with it? There are a couple reasons you might consider switching to a JNA solution:
 
-* The default smartcardio library only calls `SCardEstablishContext` once. If the daemon isn’t up yet, then your process will never be able to connect to it again. This is a big problem because on Windows, macOS, and new versions of pcscd, the daemon is not started until a reader is plugged in, and it quits when there are no more readers.
-* It’s easier to fix bugs in this project than it is to fix bugs in the libraries that are bundled with the JRE. Anybody can create and comment on issues.
+* The default smartcardio library only calls `SCardEstablishContext` once. If the daemon isn't up yet, then your process will never be able to connect to it again. This is a big problem because on Windows, macOS, and new versions of pcscd, the daemon is not started until a reader is plugged in, and it quits when there are no more readers.
+* It's easier to fix bugs in this project than it is to fix bugs in the libraries that are bundled with the JRE. Anybody can create and comment on issues.
 
 Installation
 ---
@@ -45,7 +48,7 @@ Releases are published to [mvn.javacard.pro](https://mvn.javacard.pro). Add the 
 <dependency>
     <groupId>pro.javacard</groupId>
     <artifactId>apdu4j-jnasmartcardio</artifactId>
-    <version>26.08.28-SNAPSHOT</version>
+    <version>26.09.08-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -72,7 +75,14 @@ See [CHANGES.md](CHANGES.md).
 
 Caveats
 ---
-This library requires JNA to talk to the native libraries (winscard.dll, libpcsc.so, or PCSC).
+This library requires JNA to talk to the native libraries (winscard.dll, libpcsclite.so.1, or PCSC.framework).
+
+Configuration
+---
+Every setting is read from a system property or the matching environment variable.
+
+* `apdu4j.transparent` / `APDU4J_TRANSPARENT` (also `jnasmartcardio.transparent`): don't handle 61xx and 6Cxx in `transmit()`, hand back what the card sent. Any value enables it.
+* `apdu4j.force.protocol` / `APDU4J_FORCE_PROTOCOL`: `T=0` or `T=1`. Reconnects if the card came up with the other protocol.
 
 Differences from JRE
 ---
@@ -86,7 +96,7 @@ Generally, all methods will throw a JnaPCSCException if the daemon/service is of
 
 ### JnaCardTerminals
 
-JnaCardTerminals owns the SCardContext native handle, and you should call cardTerminals.close() to clean up. Unfortunately, close() does not exist on the base class, so this library also closes it in its finalizer.
+JnaCardTerminals owns the SCardContext native handle, and you should call cardTerminals.close() to clean up. close() does not exist on the base class, so you have to cast to JnaCardTerminals to reach it. Nothing releases the context for you.
 
 To make the implementation simpler, the caller must be able to handle spurious wakeups when calling [waitForChange(long)](https://docs.oracle.com/en/java/javase/17/docs/api/java.smartcardio/javax/smartcardio/CardTerminals.html#waitForChange%28long%29). In other words, `list(State.CARD_REMOVAL)` and `list(State.CARD_INSERTION)` might both be empty lists after waitForChange returns.
 
@@ -100,7 +110,7 @@ As well as waking up when a card is inserted/removed, waitForChange will also wa
 
 If the protocol is prepended with `EXCLUSIVE;` the usual `SCARD_SHARE_SHARED` mode shall be replaced with `SCARD_SHARE_EXCLUSIVE`.
 This allows to use a safely locked reader on Windows 8+ where otherwise a transaction initiated with `SCardBeginTransaction` (`beginExclusive()`) would be closed
-after 5 seconds and `SCARD_W_RESET_CARD` returned. See [SCardBeginTransaction documentation](https://learn.microsoft.com/en-us/windows/win32/api/winscard/nf-winscard-scardbegintransaction).
+after 5 idle seconds and `SCARD_W_RESET_CARD` returned. See [SCardBeginTransaction documentation](https://learn.microsoft.com/en-us/windows/win32/api/winscard/nf-winscard-scardbegintransaction).
 
 ### JnaCard
 
@@ -115,7 +125,7 @@ after 5 seconds and `SCARD_W_RESET_CARD` returned. See [SCardBeginTransaction do
 Transmit does the following automatically:
 
 * Sets the channel number in the class byte (CLA)
-* If T=0 and Lc ≠ 0 and Le ≠ 0, then the Le byte is removed as required.
+* If T=0 and the command is a short case 4 APDU, the Le byte is removed as required.
 * If sw=61xx, then Get Response is automatically sent until the entire response is received.
 * If sw=6cxx, then the request is re-sent with the right Le byte.
 
@@ -127,4 +137,4 @@ However, keep in mind:
 
 License
 ---
-This code is released under [CC0](http://creativecommons.org/publicdomain/zero/1.0/legalcode); it is a “universal donor” in the hope that others can find it useful and contribute back.
+This code is released under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode); it is a "universal donor" in the hope that others can find it useful and contribute back.

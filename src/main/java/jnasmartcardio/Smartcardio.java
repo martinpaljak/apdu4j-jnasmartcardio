@@ -115,7 +115,7 @@ public final class Smartcardio extends Provider {
             this.libInfo = libInfo;
             this.scardContext = scardContext;
             this.knownReaders = createScardReaderStates(Collections.<String>emptyList(), usePnp, new SCardReaderState[0]);
-            this.zombieReaders = new ArrayList<SCardReaderState>();
+            this.zombieReaders = new ArrayList<>();
         }
 
         /**
@@ -136,14 +136,16 @@ public final class Smartcardio extends Provider {
          */
         @Override
         public List<CardTerminal> list(State state) throws CardException {
-            if (null == state)
+            if (null == state) {
                 throw new NullPointerException("State must be non-null. To get all terminals, call list() or list(State.ALL).");
+            }
             if (state == State.CARD_REMOVAL || state == State.CARD_INSERTION) {
-                List<CardTerminal> r = new ArrayList<CardTerminal>();
+                List<CardTerminal> r = new ArrayList<>();
                 for (int i = 0; i < knownReaders.length; i++) {
                     SCardReaderState readerState = knownReaders[i];
-                    if (WinscardConstants.PNP_READER_ID.equals(readerState.szReader))
+                    if (WinscardConstants.PNP_READER_ID.equals(readerState.szReader)) {
                         continue;
+                    }
                     boolean wasPresent = 0 != (readerState.dwCurrentState.intValue() & WinscardConstants.SCARD_STATE_PRESENT);
                     boolean isPresent = 0 != (readerState.dwEventState.intValue() & WinscardConstants.SCARD_STATE_PRESENT);
                     int oldCounter = (readerState.dwCurrentState.intValue() >> 16) & 0xffff;
@@ -156,23 +158,26 @@ public final class Smartcardio extends Provider {
                             oldCounter + 1 < newCounter;
                     boolean shouldAdd = state == State.CARD_INSERTION && cardInserted ||
                             state == State.CARD_REMOVAL && cardRemoved;
-                    if (shouldAdd)
+                    if (shouldAdd) {
                         r.add(new JnaCardTerminal(libInfo, this, readerState.szReader));
+                    }
                 }
                 if (state == State.CARD_REMOVAL) {
                     for (int i = 0; i < zombieReaders.size(); i++) {
                         SCardReaderState readerState = zombieReaders.get(i);
                         boolean wasPresent = 0 != (readerState.dwCurrentState.intValue() & WinscardConstants.SCARD_STATE_PRESENT);
-                        if (wasPresent)
+                        if (wasPresent) {
                             r.add(new JnaCardTerminal(libInfo, this, readerState.szReader));
+                        }
                     }
                 }
                 return r;
             }
 
             List<String> readerNames = listReaderNames();
-            if (readerNames.isEmpty())
+            if (readerNames.isEmpty()) {
                 return Collections.emptyList();
+            }
             List<String> filteredReaderNames;
             if (state == State.ALL) {
                 filteredReaderNames = readerNames;
@@ -183,12 +188,13 @@ public final class Smartcardio extends Provider {
                     readers[i].szReader = readerNames.get(i);
                 }
                 check("SCardGetStatusChange", libInfo.lib.SCardGetStatusChange(scardContext, new Dword(0), readers, new Dword(readers.length)));
-                filteredReaderNames = new ArrayList<String>();
+                filteredReaderNames = new ArrayList<>();
                 boolean wantPresent = state == State.CARD_PRESENT;
                 for (int i = 0; i < readers.length; i++) {
                     boolean isPresent = 0 != (WinscardConstants.SCARD_STATE_PRESENT & readers[i].dwEventState.intValue());
-                    if (wantPresent == isPresent)
+                    if (wantPresent == isPresent) {
                         filteredReaderNames.add(readers[i].szReader);
+                    }
                 }
             }
             CardTerminal[] cardTerminals = new CardTerminal[filteredReaderNames.size()];
@@ -210,12 +216,14 @@ public final class Smartcardio extends Provider {
             mszReaderGroups.put("SCard$AllReaders".getBytes(StandardCharsets.US_ASCII));
             while (true) {
                 err = libInfo.lib.SCardListReaders(scardContext, mszReaderGroups, null, pcchReaders).longValue();
-                if (err != 0)
+                if (err != 0) {
                     break;
+                }
                 mszReaders = new byte[pcchReaders.getValue().intValue()];
                 err = libInfo.lib.SCardListReaders(scardContext, mszReaderGroups, ByteBuffer.wrap(mszReaders), pcchReaders).longValue();
-                if ((int) err != WinscardConstants.SCARD_E_INSUFFICIENT_BUFFER)
+                if ((int) err != WinscardConstants.SCARD_E_INSUFFICIENT_BUFFER) {
                     break;
+                }
             }
             switch ((int) err) {
                 case SCARD_S_SUCCESS:
@@ -338,10 +346,11 @@ public final class Smartcardio extends Provider {
          */
         @Override
         public boolean waitForChange(long timeoutMs) throws CardException {
-            if (timeoutMs < 0)
+            if (timeoutMs < 0) {
                 throw new IllegalArgumentException("Negative timeout " + timeoutMs);
-            else if (timeoutMs == 0)
+            } else if (timeoutMs == 0) {
                 timeoutMs = WinscardConstants.INFINITE;
+            }
 
             zombieReaders.clear();
             // On Linux pcsclite 1.7.4, and Mac OSX 10.10, the PNP reader does
@@ -349,10 +358,11 @@ public final class Smartcardio extends Provider {
             // that isn't in the array. Thus there is a race condition between
             // updateKnownReaders() and SCardGetStatusChange; if a reader is
             // plugged in then, I think this function will block forever.
-            if (!usePnp || Platform.isLinux() || Platform.isMac())
-                if (updateKnownReaders())
+            if (!usePnp || Platform.isLinux() || Platform.isMac()) {
+                if (updateKnownReaders()) {
                     return true;  // # of readers changed; return early.
-
+                }
+            }
             for (SCardReaderState reader : knownReaders) {
                 reader.dwCurrentState = reader.dwEventState;
                 reader.dwEventState = new Dword(0);
@@ -366,15 +376,18 @@ public final class Smartcardio extends Provider {
                 readers = knownReaders;
             }
             Dword statusError = libInfo.lib.SCardGetStatusChange(scardContext, new Dword(timeoutMs), readers, new Dword(readers.length));
-            if (WinscardConstants.SCARD_E_TIMEOUT == statusError.intValue())
+            if (WinscardConstants.SCARD_E_TIMEOUT == statusError.intValue()) {
                 return false;
-            else check("SCardGetStatusChange", statusError);
+            } else {
+                check("SCardGetStatusChange", statusError);
+            }
 
             if (usePnp) {
                 SCardReaderState pnpReader = knownReaders[0];
                 boolean pnpChange = 0 != (pnpReader.dwEventState.intValue() & WinscardConstants.SCARD_STATE_CHANGED);
-                if (pnpChange)
+                if (pnpChange) {
                     updateKnownReaders();
+                }
             }
             return true;
         }
@@ -386,8 +399,11 @@ public final class Smartcardio extends Provider {
 
         public void close() throws JnaPCSCException {
             synchronized (this) {
-                if (isClosed) return;
-                else isClosed = true;
+                if (isClosed) {
+                    return;
+                } else {
+                    isClosed = true;
+                }
             }
             check("SCardReleaseContext", libInfo.lib.SCardReleaseContext(scardContext));
         }
@@ -483,23 +499,25 @@ public final class Smartcardio extends Provider {
             switch ((int) err) {
                 case SCARD_S_SUCCESS:
                     // Protocol override hack
-                    if (flag("APDU4J_FORCE_PROTOCOL") != null) {
-                        String forceProtocol = flag("APDU4J_FORCE_PROTOCOL");
+                    String forceProtocol = flag("APDU4J_FORCE_PROTOCOL");
+                    if (forceProtocol != null) {
                         final int force;
                         if ("T=0".equals(forceProtocol)) {
                             force = SCARD_PROTOCOL_T0;
                         } else if ("T=1".equals(forceProtocol)) {
                             force = SCARD_PROTOCOL_T1;
-                        } else
-                            throw new IllegalArgumentException("$APDU4J_FORCE_PROTOCOL must be T=0 or T=1. Got " + System.getenv("APDU4J_FORCE_PROTOCOL"));
+                        } else {
+                            throw new IllegalArgumentException("apdu4j.force.protocol (APDU4J_FORCE_PROTOCOL) must be T=0 or T=1. Got " + forceProtocol);
+                        }
 
                         if (pdwActiveProtocol.getValue().intValue() != force) {
                             // Reconnect, forcing protocol
                             long err2 = libInfo.lib.SCardReconnect(scardHandle, new Dword(dwShareMode), new Dword(force), new Dword(JnaCard.SCARD_UNPOWER_CARD), pdwActiveProtocol).longValue();
                             check("SCardReconnect", err2);
 
-                            if (pdwActiveProtocol.getValue().intValue() != force)
+                            if (pdwActiveProtocol.getValue().intValue() != force) {
                                 throw new JnaPCSCException("Could not force protocol to " + force + ". Got " + pdwActiveProtocol.getValue().intValue() + " instead.");
+                            }
                         }
                     }
                     check("SCardStatus", libInfo.lib.SCardStatus(scardHandle, null, readerLength, currentState, currentProtocol, atrBuf, atrLength));
@@ -510,7 +528,8 @@ public final class Smartcardio extends Provider {
                     ATR atr = new ATR(atrBytes);
                     return new JnaCard(libInfo, this, scardHandle, atr, currentProtocol.getValue().intValue());
                 case WinscardConstants.SCARD_W_REMOVED_CARD:
-                    throw new JnaCardNotPresentException(err, "Card not present.");
+                case WinscardConstants.SCARD_E_NO_SMARTCARD:
+                    throw new JnaCardNotPresentException(err, String.format("%s: Card not present.", WinscardConstants.ERROR_TO_VARIABLE_NAME.get((int) err)));
                 default:
                     check("SCardConnect", err);
                     throw new RuntimeException("Should not reach here.");
@@ -528,10 +547,12 @@ public final class Smartcardio extends Provider {
         }
 
         private boolean waitHelper(long timeoutMs, boolean cardPresent) throws JnaPCSCException {
-            if (timeoutMs < 0)
+            if (timeoutMs < 0) {
                 throw new IllegalArgumentException("Negative timeout " + timeoutMs);
-            if (timeoutMs == 0)
+            }
+            if (timeoutMs == 0) {
                 timeoutMs = WinscardConstants.INFINITE;
+            }
             SCardReaderState[] rgReaderStates = new SCardReaderState[1];
             new SCardReaderState().toArray((Structure[]) rgReaderStates);
             SCardReaderState readerState = rgReaderStates[0];
@@ -544,12 +565,14 @@ public final class Smartcardio extends Provider {
                 long startTime = System.currentTimeMillis();
                 Dword err = libInfo.lib.SCardGetStatusChange(cardTerminals.scardContext, new Dword(remainingTimeout), rgReaderStates, new Dword(rgReaderStates.length));
                 long endTime = System.currentTimeMillis();
-                if (WinscardConstants.SCARD_E_TIMEOUT == err.intValue())
+                if (WinscardConstants.SCARD_E_TIMEOUT == err.intValue()) {
                     return false;
+                }
                 check("SCardGetStatusChange", err);
                 if (remainingTimeout != WinscardConstants.INFINITE) {
-                    if (remainingTimeout < endTime - startTime)
+                    if (remainingTimeout < endTime - startTime) {
                         return false;
+                    }
                     remainingTimeout -= (int) (endTime - startTime); // Should never run out...
                 }
             }
@@ -662,8 +685,9 @@ public final class Smartcardio extends Provider {
                 byte[] body = response.getData();
                 if (body.length == 1) {
                     int channel = 0xff & body[0];
-                    if (channel == 0 || channel > 0x13)
+                    if (channel == 0 || channel > 0x13) {
                         throw new JnaCardException(sw, String.format("Expected manage channel response to contain channel number in 1-19; got %d", channel));
+                    }
                     return new JnaCardChannel(this, channel);
                 } else {
                     throw new JnaCardException(sw, String.format("Expected body of length 1 in response to manage channel request; got %d", body.length));
@@ -709,8 +733,9 @@ public final class Smartcardio extends Provider {
 
         @Override
         public void close() throws CardException {
-            if (isClosed)
+            if (isClosed) {
                 return;
+            }
             isClosed = true;
             if (channel != 0) {
                 // manage channel: close
@@ -753,7 +778,7 @@ public final class Smartcardio extends Provider {
          * The secure messaging indication and command chaining control are not
          * modified, but they must already be in the correct bits depending on
          * the channel number!
-         * <li>If T=0 and there is request data, then the Le byte is removed.
+         * <li>If T=0 and the command is a short case 4 APDU, then the Le byte is removed.
          * </ul>
          *
          * <p>
@@ -788,7 +813,7 @@ public final class Smartcardio extends Provider {
          * The secure messaging indication and command chaining control are not
          * modified, but they must already be in the correct bits depending on
          * the channel number!
-         * <li>If T=0 and there is request data, then the Le byte is removed.
+         * <li>If T=0 and the command is a short case 4 APDU, then the Le byte is removed.
          * </ul>
          *
          * <p>
@@ -840,7 +865,7 @@ public final class Smartcardio extends Provider {
          * <ul>
          * <li>Set the channel number bits in the class byte.
          * <li>If T=0, then convert APDU to T=0 TPDU (ISO 7816-3). In
-         * particular, if T=0 and there is request data, then strip the Le field
+         * particular, a short case 4 command is sent as case 3.
          * <li>If sw = 61xx, then call c0 get response and concatenate
          * <li>If sw = 6cxx, then retransmit with Le = xx
          * </ul>
@@ -868,11 +893,11 @@ public final class Smartcardio extends Provider {
          */
         private ByteBuffer transmitImpl(byte[] command, ByteBuffer response) throws CardException, JnaPCSCException {
             // Mimic SUN with self-defense
-            if (card.protocol == JnaCardTerminal.SCARD_PROTOCOL_T0 && isExtendedApdu(command))
+            if (card.protocol == JnaCardTerminal.SCARD_PROTOCOL_T0 && isExtendedApdu(command)) {
                 throw new CardException("Extended APDU requires T=1");
+            }
 
-            // A T=0 TPDU carries one length field, so case-4 cannot be sent as is: drop the Le
-            // and send it as case-3 (ISO/IEC 7816-3).
+            // ISO/IEC 7816-3 12.2.5: case-4S maps onto a T=0 TPDU by cutting off the Le field
             if (card.protocol == JnaCardTerminal.SCARD_PROTOCOL_T0 && command.length >= 7) {
                 int lc = command[4] & 0xff;
                 if (lc != 0 && command.length == lc + 6) { // case-4S: header + Lc + data + Le
@@ -881,44 +906,49 @@ public final class Smartcardio extends Provider {
             }
 
             command[0] = getClassByte(command[0], getChannelNumber());
-            ByteBuffer commandBuffer = ByteBuffer.wrap(command);
+            byte[] current = command;
+            ByteBuffer commandBuffer = ByteBuffer.wrap(current);
 
             // Allocate memory if not given: 8K
-            if (response == null)
+            if (response == null) {
                 response = ByteBuffer.allocate(8192);
+            }
 
             boolean transparent = flag("jnasmartcardio.transparent") != null || flag("APDU4J_TRANSPARENT") != null;
 
             // Don't loop forever.
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < 256; i++) {
                 int posBeforeTransmit = response.position();
-                transmitRaw(commandBuffer, response);
+                int received = transmitRaw(commandBuffer, response);
+                if (received < 2) {
+                    throw new CardException("Invalid response length: " + received);
+                }
 
                 // Roll back to read SW
                 response.position(response.position() - 2);
                 byte sw1 = response.get();
                 byte sw2 = response.get();
-                if (0x6c == sw1 && !transparent) {
-                    command[command.length - 1] = sw2;
+                // 7816-4 5.1.3 re-issues "the same command" with SW2 as short Le: a case-3 has none
+                boolean hasLe = current.length <= 5 || (current[4] != 0 && current.length == (current[4] & 0xff) + 6);
+                if (0x6c == sw1 && !transparent && hasLe) {
+                    // Case 1 command has no Le byte, make room for it
+                    if (current.length < 5) {
+                        current = Arrays.copyOf(current, 5);
+                    }
+                    current[current.length - 1] = sw2;
+                    commandBuffer = ByteBuffer.wrap(current);
                     response.position(posBeforeTransmit);
-                    commandBuffer.rewind();
                 } else if (0x61 == sw1 && !transparent) {
-                    // send Get Response command.
-                    // Don't touch CLA as per 7816-4
-                    command[1] = (byte) 0xc0;
-                    command[2] = (byte) 0x00;
-                    command[3] = (byte) 0x00;
-                    command[4] = sw2;
-                    commandBuffer.position(0);
-                    commandBuffer.limit(5);
-                    // concatenate new response to the same buffer.
-                    // Roll back to overwrite current SW.
+                    // Keep CLA as per 7816-4
+                    current = new byte[]{command[0], (byte) 0xc0, 0x00, 0x00, sw2};
+                    commandBuffer = ByteBuffer.wrap(current);
+                    // Roll back to overwrite the SW with the coming data
                     response.position(response.position() - 2);
                 } else {
-                    break;
+                    return response;
                 }
             }
-            return response;
+            throw new CardException("Card did not finish the response after 256 rounds");
         }
 
         /**
@@ -1060,13 +1090,16 @@ public final class Smartcardio extends Provider {
      * @param
      */
     private static List<String> pcsc_multi2jstring(byte[] multiString, Charset charset) {
-        List<String> r = new ArrayList<String>();
-        int from = 0, to = 0;
+        List<String> r = new ArrayList<>();
+        int from = 0;
+        int to = 0;
         for (; to < multiString.length; to++) {
-            if (multiString[to] != '\0')
+            if (multiString[to] != '\0') {
                 continue;
-            if (from == to)
+            }
+            if (from == to) {
                 return r;
+            }
             byte[] bytes = Arrays.copyOfRange(multiString, from, to);
             r.add(new String(bytes, charset));
             from = to + 1;
@@ -1083,20 +1116,23 @@ public final class Smartcardio extends Provider {
     }
 
     private static void check(String message, long code) throws JnaPCSCException {
-        if (code == 0)
+        if (code == 0) {
             return;
+        }
         int icode = (int) code;
         String codeName = WinscardConstants.ERROR_TO_VARIABLE_NAME.get(icode);
-        String codeDescription = WinscardConstants.ERROR_TO_DESCRIPTION.get(icode);
-        throw new JnaPCSCException(code, String.format("%s got response 0x%x (%s: %s)", message, icode, codeName, codeDescription));
+        String detail = codeName == null ? "unknown"
+                : String.format("%s: %s", codeName, WinscardConstants.ERROR_TO_DESCRIPTION.get(icode));
+        throw new JnaPCSCException(code, String.format("%s got response 0x%x (%s)", message, icode, detail));
     }
 
     static String flag(String s) {
         String propname = s.replace("_", ".").toLowerCase();
         String envname = s.replace(".", "_").toUpperCase();
 
-        if (System.getProperty(propname) != null)
+        if (System.getProperty(propname) != null) {
             return System.getProperty(propname);
+        }
 
         return System.getenv(envname);
     }
